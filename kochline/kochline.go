@@ -1,0 +1,89 @@
+package kochline
+
+import "ch8/sb"
+
+// KochLine : struct of koch curve
+type KochLine struct {
+	Start sb.Vec2
+	End   sb.Vec2
+}
+
+// NewKochLine : create a new kochline
+func NewKochLine(a, b sb.Vec2) KochLine {
+	return KochLine{a, b}
+}
+
+/* koch line
+              c
+              /\
+             /  \
+            /    \
+	a------b      d------e
+*/
+
+// KochA :
+func (kl KochLine) KochA() sb.Vec2 {
+	return kl.Start
+}
+
+// KochB :
+func (kl KochLine) KochB() sb.Vec2 {
+	v := kl.End.Sub(kl.Start)
+	v = v.DivScalar(3)
+	v = v.Add(kl.Start)
+	return v
+}
+
+// KochC :
+func (kl KochLine) KochC() sb.Vec2 {
+	a := kl.Start.Clone()
+	v := kl.End.Sub(kl.Start)
+	v = v.DivScalar(3)
+	a = a.Add(v)
+	v = v.Rotate(-60)
+	a = a.Add(v)
+	return a
+}
+
+// KochD :
+func (kl KochLine) KochD() sb.Vec2 {
+	v := kl.End.Sub(kl.Start)
+	v = v.MulScalar(2 / 3.0)
+	v = v.Add(kl.Start)
+	return v
+}
+
+// KochE :
+func (kl KochLine) KochE() sb.Vec2 {
+	return kl.End
+}
+
+// KochLines : group of kochline
+type KochLines struct {
+	Klines []KochLine
+}
+
+// NewKochLines :
+func NewKochLines(x, y sb.Vec2) *KochLines {
+	kc := NewKochLine(x, y)
+	kl := make([]KochLine, 0)
+	kl = append(kl, kc)
+	return &KochLines{kl}
+}
+
+// Generate :
+func (kls *KochLines) Generate() {
+	next := make([]KochLine, 0)
+	for _, kl := range kls.Klines {
+		a := kl.KochA()
+		b := kl.KochB()
+		c := kl.KochC()
+		d := kl.KochD()
+		e := kl.KochE()
+		next = append(next, NewKochLine(a, b))
+		next = append(next, NewKochLine(b, c))
+		next = append(next, NewKochLine(c, d))
+		next = append(next, NewKochLine(d, e))
+	}
+	kls.Klines = next[:]
+}
